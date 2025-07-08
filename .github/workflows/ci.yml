@@ -68,6 +68,7 @@ jobs:
   generate-report:
     runs-on: ubuntu-latest
     needs: test
+    if: always()
     outputs:
       report-dir: allure-report
 
