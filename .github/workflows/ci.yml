@@ -55,7 +55,7 @@ jobs:
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results
+          name: allure-results-${{ steps.sanitize.outputs.safe_name }}
           path: allure-results
 
   generate-report:
@@ -68,15 +68,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download all Allure results
-        uses: actions/download-artifact@v4
-        with:
-          path: allure-results
+      - name: Install GitHub CLI and unzip
+        run: sudo apt-get update && sudo apt-get install -y gh jq unzip
 
-      - name: Merge Allure results
+      - name: Download and merge allure results
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p allure-results
-          find allure-results -type d -name 'allure-results-*' -exec cp -r {}/* allure-results/ \;
+          artifacts=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[].name' | grep '^allure-results-')
+
+          echo "Merging artifacts:"
+          echo "$artifacts"
+
+          for name in $artifacts; do
+            url=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq ".artifacts[] | select(.name==\"$name\") | .archive_download_url")
+            curl -sL -H "Authorization: token $GH_TOKEN" "$url" -o "$name.zip"
+            unzip -q "$name.zip" -d temp
+            cp -r temp/* allure-results/
+            rm -rf temp "$name.zip"
+          done
 
       - name: Download Allure CLI
         run: |
