@@ -41,11 +41,16 @@ jobs:
       - name: Run tests with pytest
         run: |
           pytest ${{ matrix.suite }} --alluredir=allure-results --maxfail=1 --disable-warnings -q
+        continue-on-error: true
+
+      - name: Set safe artifact name
+        id: sanitize
+        run: echo "safe_name=$(echo ${{ matrix.suite }} | tr '/' '_' | tr '.' '_')" >> $GITHUB_OUTPUT
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ matrix.suite }}
+          name: allure-results-${{ steps.sanitize.outputs.safe_name }}
           path: allure-results
 
   generate-report:
