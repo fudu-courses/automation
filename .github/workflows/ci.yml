@@ -45,7 +45,7 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest -v ${{ matrix.suite }} --alluredir=allure-results --maxfail=1 --disable-warnings
+          pytest -v ${{ matrix.suite }} --alluredir=allure-results --maxfail=1 --disable-warnings -q
         continue-on-error: true
 
       - name: Set safe artifact name
