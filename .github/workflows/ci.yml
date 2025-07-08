@@ -45,7 +45,7 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest ${{ matrix.suite }} --alluredir=allure-results --maxfail=1 --disable-warnings -q
+          pytest -v ${{ matrix.suite }} --alluredir=allure-results --maxfail=1 --disable-warnings
         continue-on-error: true
 
       - name: Set safe artifact name
@@ -55,7 +55,7 @@ jobs:
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ steps.sanitize.outputs.safe_name }}
+          name: allure-results
           path: allure-results
 
   generate-report:
@@ -71,12 +71,12 @@ jobs:
       - name: Download all Allure results
         uses: actions/download-artifact@v4
         with:
-          path: combined-results
+          path: allure-results
 
       - name: Merge Allure results
         run: |
           mkdir -p allure-results
-          find combined-results -type d -name 'allure-results-*' -exec cp -r {}/* allure-results/ \;
+          find allure-results -type d -name 'allure-results-*' -exec cp -r {}/* allure-results/ \;
 
       - name: Download Allure CLI
         run: |

@@ -49,3 +49,5 @@ dist/
 
 # Pytest cache
 .pytest_cache/
+
+allure-results/
