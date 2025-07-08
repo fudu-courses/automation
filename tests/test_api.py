@@ -37,7 +37,7 @@ class TestApiLocation(TestSetup):
     @pytest.mark.parametrize(
         "loc_id, loc_name",
         [
-            (5, "Texas R&D"),
+            (5, "Texas R&D - error"),
         ],
     )
     def test_api_locations(self, loc_id, loc_name):
